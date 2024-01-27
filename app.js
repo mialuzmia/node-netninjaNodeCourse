@@ -6,8 +6,14 @@ app.set('view engine', 'ejs');
 
 app.listen(3000); //listen for requests, localhost is default
 
+app.use('/public', express.static(__dirname + '/public'));
+
 app.use((req, res, next) => {
-  console.log(req.method, req.url);
+  console.log('new request made:');
+  console.log('host:', req.hostname);
+  console.log('path: ', req.path);
+  console.log('method: ', req.method);
+  console.log('\n');
   next();
 }); 
 
