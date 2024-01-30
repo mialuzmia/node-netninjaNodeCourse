@@ -30,6 +30,7 @@ app.set('view engine', 'ejs');
 
 // middlewares
 app.use('/public', express.static(__dirname + '/public'));
+app.use(express.urlencoded({ extended: true }))
 app.use(morgan('dev'));
 
 // // mongo sandbox routes
@@ -63,17 +64,34 @@ app.get('/blogs', async (req, res) => {
   }
 });
 
-app.get('/blogs/:id', async (req, res) => {
-  const id = req.params.id
+app.get('/json', async (req, res) => {
   try {
-    const result = await Blog.findById(id);
+    const result = await Blog.find({});
     res.json(result);
   } catch(err) {
     res.end(err.message)
   }
 });
 
-app.get('/blogs/create', (req, res) => {
+
+app.post('/blogs', async (req, res) => {
+  
+  try {
+    const blog = new Blog(req.body);
+    const result = await blog.save();
+    console.log('\n',result, '\n');
+
+    res.redirect('/blogs');
+  } catch(err) {
+    console.log(err);
+    res.end(err.message);
+  }
+
+});
+
+
+
+app.get('/create', (req, res) => {
   res.render('create', {title: 'Create a new blog'});
 });
 
@@ -86,6 +104,19 @@ app.get('/about-me', (req, res) => { //redirect
   res.redirect('about');
 });
 
+app.get('/blogs/:id', async (req, res) => {
+  const id = req.params.id
+  
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).send('Invalid ID');
+  };
+  try {
+    const result = await Blog.findById(id);
+    res.json(result);
+  } catch(err) {
+    res.end(err.message)
+  }
+});
 
 app.use((req, res) => { // (needs to be in the bottom) this is like a default in a switch case. the use fire for everry request, but the code is read from to top to bottom. it means that this function will only be fires if none of the code above matches the request. basically for every route not especified this will fire
   res.status(404).render('404', {title: '404'});
