@@ -82,18 +82,50 @@ app.post('/blogs', async (req, res) => {
     console.log('\n',result, '\n');
 
     res.redirect('/blogs');
-  } catch(err) {
+  } 
+  catch(err) {
     console.log(err);
     res.end(err.message);
-  }
+  };
 
 });
 
-
-
-app.get('/create', (req, res) => {
+app.get('/blogs/create', (req, res) => {
   res.render('create', {title: 'Create a new blog'});
 });
+
+
+app.delete('/blogs/:id', async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const result = await Blog.findByIdAndDelete(id);
+    res.json({ redirect: '/blogs' });
+ 
+  } 
+  catch(err) {
+    console.log(err);
+    res.end(err.message);
+  };
+
+});
+
+
+app.get('/blogs/:id', async (req, res) => {
+  const id = req.params.id
+  
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).send('Invalid ID');
+  };
+  try {
+    const result = await Blog.findById(id);
+    res.render('details',{blog: result, title: 'Blog Details'});
+  } catch(err) {
+    res.end(err.message);
+  }
+});
+
+
 
 app.get('/about', (req, res) => {
   res.render('about', {title: 'About'});
@@ -104,19 +136,7 @@ app.get('/about-me', (req, res) => { //redirect
   res.redirect('about');
 });
 
-app.get('/blogs/:id', async (req, res) => {
-  const id = req.params.id
-  
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).send('Invalid ID');
-  };
-  try {
-    const result = await Blog.findById(id);
-    res.json(result);
-  } catch(err) {
-    res.end(err.message)
-  }
-});
+
 
 app.use((req, res) => { // (needs to be in the bottom) this is like a default in a switch case. the use fire for everry request, but the code is read from to top to bottom. it means that this function will only be fires if none of the code above matches the request. basically for every route not especified this will fire
   res.status(404).render('404', {title: '404'});
