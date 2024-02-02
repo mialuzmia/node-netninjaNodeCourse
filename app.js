@@ -2,14 +2,15 @@ const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const blogRoutes = require('./routes/blogRoutes');
+require('dotenv').config();
+
 
 const app = express(); //express app
 
-const dbURI = 'mongodb+srv://mialuz:7J9lWpJiR2W6HnOB@cluster0.txmrd5g.mongodb.net/node-ninja?retryWrites=true&w=majority';
 
 const connectToDB = async () => {
   try {
-    const result = await mongoose.connect(dbURI);
+    const result = await mongoose.connect(process.env.DATABASE_URL);
     console.log('connected to db');
     app.listen(3000); 
     // console.log(result);
